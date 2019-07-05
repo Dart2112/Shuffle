@@ -61,6 +61,10 @@ public class Shuffle {
         songs = distributedPlaylist;
     }
 
+    public List<Song> getSongs() {
+        return songs;
+    }
+
     /**
      * Loads all the songs into the artists map
      */
