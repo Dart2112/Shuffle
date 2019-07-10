@@ -16,39 +16,45 @@ public class Song implements Comparable<Song> {
             album = "";
         }
         this.title = title;
-        this.artist = artist.toLowerCase();
-        this.album = album.toLowerCase();
+        this.artist = artist;
+        this.album = album;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public String getArtist() {
-        return artist;
+    public String getArtist(boolean lowerCase) {
+        if (lowerCase)
+            return artist.toLowerCase();
+        else
+            return artist;
     }
 
-    public String getAlbum() {
-        return album;
+    String getAlbum(boolean lowerCase) {
+        if (lowerCase)
+            return album.toLowerCase();
+        else
+            return album;
     }
 
-    protected void setTitle(String title) {
+    void setTitle(String title) {
         this.title = title;
     }
 
-    protected void setArtist(String artist) {
+    void setArtist(String artist) {
         this.artist = artist;
     }
 
-    protected void setAlbum(String album) {
+    void setAlbum(String album) {
         this.album = album;
     }
 
-    public double getIndex() {
+    private double getIndex() {
         return index;
     }
 
-    public void setIndex(double index) {
+    void setIndex(double index) {
         this.index = index;
     }
 

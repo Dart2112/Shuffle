@@ -15,6 +15,9 @@ import java.util.Objects;
 
 public class TestShuffle {
 
+    private int random, shuffle, trials = 0;
+    private List<Song> songs = new ArrayList<>();
+
     @Test
     public void runTestShuffle() {
         List<Song> songs = new ArrayList<>();
@@ -50,37 +53,68 @@ public class TestShuffle {
     }
 
     @Test
-    public void runFileShuffle() throws ReadOnlyFileException, IOException, TagException, InvalidAudioFrameException, CannotReadException {
-        List<Song> songs = new ArrayList<>();
-        File musicDir = new File(System.getProperty("user.home") + "/Music");
-        for (File f : Objects.requireNonNull(musicDir.listFiles())) {
-            if (!f.getName().endsWith(".mp3")) {
-                continue;
+    public void runFileShuffleTest() throws ReadOnlyFileException, IOException, TagException, InvalidAudioFrameException, CannotReadException {
+        runFileShuffle();
+    }
+
+    @Test
+    public void runLongTermComparisonShuffle() throws ReadOnlyFileException, CannotReadException, TagException, InvalidAudioFrameException, IOException {
+        for (int i = 0; i < 100; i++) {
+            runFileShuffle();
+        }
+        System.out.println("\n\n");
+        System.out.println("For " + trials + " trials,");
+        System.out.println("Random shuffle had a total of " + random + " repeats");
+        System.out.println("DNAblue shuffle had a total of " + shuffle + " repeats");
+    }
+
+    private void runFileShuffle() throws ReadOnlyFileException, IOException, TagException, InvalidAudioFrameException, CannotReadException {
+        if (songs.isEmpty()) {
+            File musicDir = new File(System.getProperty("user.home") + "/Music");
+            for (File f : Objects.requireNonNull(musicDir.listFiles())) {
+                if (!f.getName().endsWith(".mp3")) {
+                    continue;
+                }
+                songs.add(new SongFile(f));
             }
-            songs.add(new SongFile(f));
         }
         Shuffle shuffle = new Shuffle(songs);
-        Long timeBefore = System.currentTimeMillis();
+        Long timeBefore = System.nanoTime();
         shuffle.shuffle();
         songs = shuffle.getSongs();
-        Long timeAfter = System.currentTimeMillis();
-        System.out.println(songs);
+        Long timeAfter = System.nanoTime();
+        System.out.println("\n\n");
         long timeTaken = timeAfter - timeBefore;
-        double timePerSong = timeTaken / songs.size();
-        System.out.println("Shuffled in " + timeTaken + " Milliseconds at " + timePerSong + " Milliseconds per song");
+        System.out.println("Shuffled in " + timeTaken + " Nanoseconds");
+        int repeats = checkForRepeats(songs);
+        this.shuffle += repeats;
+        System.out.println(repeats + " songs were found with the same artist before, after shuffle");
+        timeBefore = System.nanoTime();
+        songs = shuffle.randomiseOrder(songs);
+        timeAfter = System.nanoTime();
+        long randomTimeTaken = timeAfter - timeBefore;
+        System.out.println("Shuffled in " + randomTimeTaken + " Nanoseconds");
+        System.out.println(timeTaken / randomTimeTaken + "x difference between shuffle and random");
+        repeats = checkForRepeats(songs);
+        random += repeats;
+        System.out.println(repeats + " songs were found with the same artist before, after a random shuffle");
+        trials++;
+    }
+
+    private int checkForRepeats(List<Song> songs) {
         String title = "";
         String artist = "";
-        int i = 0;
+        int repeats = 0;
         for (Song s : songs) {
-            if (s.getArtist().equalsIgnoreCase(artist)) {
-                i++;
+            if (s.getArtist(false).equalsIgnoreCase(artist)) {
+                repeats++;
                 System.out.println(artist + ": " + title + " & " + s.getTitle());
             } else {
                 title = s.getTitle();
-                artist = s.getArtist();
+                artist = s.getArtist(false);
             }
         }
-        System.out.println(i + " songs were found with the same artist before, after shuffle");
+        return repeats;
     }
 
 }

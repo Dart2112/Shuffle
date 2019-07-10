@@ -23,14 +23,14 @@ public class Shuffle {
             //Create lists with each album
             Map<String, List<Song>> albums = new HashMap<>();
             for (Song s : songs) {
-                if (albums.containsKey(s.getAlbum())) {
-                    List<Song> list = albums.get(s.getAlbum());
+                if (albums.containsKey(s.getAlbum(true))) {
+                    List<Song> list = albums.get(s.getAlbum(true));
                     list.add(s);
-                    albums.put(s.getAlbum(), list);
+                    albums.put(s.getAlbum(true), list);
                 } else {
                     List<Song> list = new ArrayList<>();
                     list.add(s);
-                    albums.put(s.getAlbum(), list);
+                    albums.put(s.getAlbum(true), list);
                 }
             }
             //Distribute each album over the length of all artist songs
@@ -71,7 +71,7 @@ public class Shuffle {
     private void classifyByArtist() {
         artists.clear();
         for (Song s : songs) {
-            String artist = s.getArtist();
+            String artist = s.getArtist(true);
             if (artists.containsKey(artist)) {
                 //If the artist already exists just add this song
                 List<Song> list = artists.get(artist);
@@ -97,8 +97,15 @@ public class Shuffle {
      */
     private List<Song> distribute(List<Song> toDistribute, int length) {
         int range = length / toDistribute.size();
+        //The amount of buffer on each side that should be applied to the randomness, max 49.00
+        float x = 20.0f;
+        //This value is x% of range
+        int p = (int) (range * (x / 100.0f));
         for (int i = 0; i < toDistribute.size(); i++) {
-            double index = r.nextInt(range * (i + 1)) + r.nextDouble();
+            //This gets a random in the lower x*2% of the range to be shifted later to the middle
+            int randomMax = range - (p * 2);
+            //The latter half of this does the main displacement and the x% shift to the middle
+            double index = r.nextInt(randomMax) + (range * i) + p + r.nextDouble();
             Song s = toDistribute.get(i);
             s.setIndex(index);
             toDistribute.set(i, s);
@@ -114,13 +121,13 @@ public class Shuffle {
      * @param songs The songs to order
      * @return Returns the randomized list of songs
      */
-    private List<Song> randomiseOrder(List<Song> songs) {
+    public List<Song> randomiseOrder(List<Song> songs) {
         List<Song> randomized = new ArrayList<>();
-        for (int i = songs.size(); i > 0; i--) {
-            int index = r.nextInt(i);
-            randomized.add(songs.get(index));
-            songs.remove(index);
+        for (Song s : songs) {
+            s.setIndex(r.nextInt(songs.size()) + r.nextDouble());
+            randomized.add(s);
         }
+        Collections.sort(randomized);
         return randomized;
     }
 
