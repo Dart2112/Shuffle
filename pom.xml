@@ -5,6 +5,10 @@
     <version>1.0.0</version>
     <name>Shuffle</name>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <build>
         <finalName>${project.artifactId}</finalName>
         <defaultGoal>clean package</defaultGoal>
