@@ -4,82 +4,82 @@ import java.util.*;
 
 public class Shuffle {
 
-    private List<Song> songs;
-    // <Artist, Songs>
-    private Map<String, List<Song>> artists = new HashMap<>();
+    private List<Shuffleable> shuffleables;
+    // <Artist, Track>
+    private Map<String, List<Shuffleable>> artists = new HashMap<>();
     private Random r;
 
-    public Shuffle(List<Song> songs) {
-        this.songs = songs;
+    public Shuffle(List<Shuffleable> shuffleables) {
+        this.shuffleables = shuffleables;
         r = new Random();
     }
 
     public void shuffle() {
-        //Classify songs
+        //Classify Tracks
         classifyByArtist();
         //Distribute albums within artists
         for (String artist : artists.keySet()) {
-            List<Song> songs = artists.get(artist);
+            List<Shuffleable> shuffleables = artists.get(artist);
             //Create lists with each album
-            Map<String, List<Song>> albums = new HashMap<>();
-            for (Song s : songs) {
+            Map<String, List<Shuffleable>> albums = new HashMap<>();
+            for (Shuffleable s : shuffleables) {
                 if (albums.containsKey(s.getAlbum(true))) {
-                    List<Song> list = albums.get(s.getAlbum(true));
+                    List<Shuffleable> list = albums.get(s.getAlbum(true));
                     list.add(s);
                     albums.put(s.getAlbum(true), list);
                 } else {
-                    List<Song> list = new ArrayList<>();
+                    List<Shuffleable> list = new ArrayList<>();
                     list.add(s);
                     albums.put(s.getAlbum(true), list);
                 }
             }
-            //Distribute each album over the length of all artist songs
+            //Distribute each album over the length of all artist tracks
             for (String album : albums.keySet()) {
-                List<Song> albumSongs = albums.get(album);
-                albums.put(album, distribute(randomiseOrder(albumSongs), songs.size()));
+                List<Shuffleable> albumTracks = albums.get(album);
+                albums.put(album, distribute(randomiseOrder(albumTracks), shuffleables.size()));
             }
-            List<Song> distributedArtistSongs = new ArrayList<>();
-            for (List<Song> albumSongs : albums.values()) {
-                distributedArtistSongs.addAll(albumSongs);
+            List<Shuffleable> distributedArtistTracks = new ArrayList<>();
+            for (List<Shuffleable> albumTracks : albums.values()) {
+                distributedArtistTracks.addAll(albumTracks);
             }
             //This is the sorted list for each artist
-            Collections.sort(distributedArtistSongs);
-            artists.put(artist, distributedArtistSongs);
+            Collections.sort(distributedArtistTracks);
+            artists.put(artist, distributedArtistTracks);
         }
         //Distribute each artist
         for (String artist : artists.keySet()) {
-            List<Song> songs = artists.get(artist);
-            artists.put(artist, distribute(songs, this.songs.size()));
+            List<Shuffleable> shuffleables = artists.get(artist);
+            artists.put(artist, distribute(shuffleables, this.shuffleables.size()));
         }
-        //Collapse the artists distributed songs back to a single playlist
-        List<Song> distributedPlaylist = new ArrayList<>();
-        for (List<Song> artistSongs : artists.values()) {
-            distributedPlaylist.addAll(artistSongs);
+        //Collapse the artists distributed tracks back to a single playlist
+        List<Shuffleable> distributedPlaylist = new ArrayList<>();
+        for (List<Shuffleable> artistTracks : artists.values()) {
+            distributedPlaylist.addAll(artistTracks);
         }
-        //Sort by the index values from all the songs
+        //Sort by the index values from all the tracks
         Collections.sort(distributedPlaylist);
-        songs = distributedPlaylist;
+        shuffleables = distributedPlaylist;
     }
 
-    public List<Song> getSongs() {
-        return songs;
+    public List<Shuffleable> getShuffleables() {
+        return shuffleables;
     }
 
     /**
-     * Loads all the songs into the artists map
+     * Loads all the tracks into the artists map
      */
     private void classifyByArtist() {
         artists.clear();
-        for (Song s : songs) {
+        for (Shuffleable s : shuffleables) {
             String artist = s.getArtist(true);
             if (artists.containsKey(artist)) {
-                //If the artist already exists just add this song
-                List<Song> list = artists.get(artist);
+                //If the artist already exists just add this track
+                List<Shuffleable> list = artists.get(artist);
                 list.add(s);
                 artists.put(artist, list);
             } else {
-                //Add the artist to the map with this song in the list
-                List<Song> list = new ArrayList<>();
+                //Add the artist to the map with this track in the list
+                List<Shuffleable> list = new ArrayList<>();
                 list.add(s);
                 artists.put(artist, list);
             }
@@ -91,11 +91,11 @@ public class Shuffle {
      * Should be used for each smaller section
      * Items order in the list should also be randomised before they are distributed
      *
-     * @param toDistribute The list of songs to distribute
+     * @param toDistribute The list of tracks to distribute
      * @param length       The length of the overall playlist to distribute along
      * @return Returns a sorted list with indexes distributed
      */
-    private List<Song> distribute(List<Song> toDistribute, int length) {
+    private List<Shuffleable> distribute(List<Shuffleable> toDistribute, int length) {
         int range = length / toDistribute.size();
         //The amount of buffer on each side that should be applied to the randomness, max 49.00
         float x = 20.0f;
@@ -106,7 +106,7 @@ public class Shuffle {
             int randomMax = range - (p * 2);
             //The latter half of this does the main displacement and the x% shift to the middle
             double index = r.nextInt(randomMax) + (range * i) + p + r.nextDouble();
-            Song s = toDistribute.get(i);
+            Shuffleable s = toDistribute.get(i);
             s.setIndex(index);
             toDistribute.set(i, s);
         }
@@ -116,15 +116,15 @@ public class Shuffle {
 
     /**
      * Randomizes the order of the elements in the list
-     * Used for randomizing the order of songs in albums
+     * Used for randomizing the order of tracks in albums
      *
-     * @param songs The songs to order
-     * @return Returns the randomized list of songs
+     * @param tracks The tracks to order
+     * @return Returns the randomized list of tracks
      */
-    public List<Song> randomiseOrder(List<Song> songs) {
-        List<Song> randomized = new ArrayList<>();
-        for (Song s : songs) {
-            s.setIndex(r.nextInt(songs.size()) + r.nextDouble());
+    public List<Shuffleable> randomiseOrder(List<Shuffleable> tracks) {
+        List<Shuffleable> randomized = new ArrayList<>();
+        for (Shuffleable s : tracks) {
+            s.setIndex(r.nextInt(tracks.size()) + r.nextDouble());
             randomized.add(s);
         }
         Collections.sort(randomized);

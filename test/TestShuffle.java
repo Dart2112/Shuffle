@@ -1,5 +1,5 @@
 import net.lapismc.shuffle.Shuffle;
-import net.lapismc.shuffle.Song;
+import net.lapismc.shuffle.Shuffleable;
 import net.lapismc.shuffle.SongFile;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
@@ -16,39 +16,39 @@ import java.util.Objects;
 public class TestShuffle {
 
     private int random, shuffle, trials = 0;
-    private List<Song> songs = new ArrayList<>();
+    private List<Shuffleable> shuffleables = new ArrayList<>();
 
     @Test
     public void runTestShuffle() {
-        List<Song> songs = new ArrayList<>();
-        songs.add(new Song("1", "A", ""));
-        songs.add(new Song("2", "A", ""));
-        songs.add(new Song("3", "B", ""));
-        songs.add(new Song("4", "B", ""));
-        songs.add(new Song("5", "C", ""));
-        songs.add(new Song("6", "C", ""));
-        songs.add(new Song("7", "D", ""));
-        songs.add(new Song("8", "E", ""));
-        songs.add(new Song("9", "F", ""));
-        songs.add(new Song("10", "G", ""));
-        songs.add(new Song("11", "G", ""));
-        songs.add(new Song("12", "H", ""));
-        songs.add(new Song("13", "I", ""));
-        songs.add(new Song("14", "J", ""));
-        songs.add(new Song("15", "K", ""));
-        songs.add(new Song("16", "K", ""));
-        songs.add(new Song("17", "L", ""));
-        songs.add(new Song("18", "M", ""));
-        songs.add(new Song("19", "N", ""));
-        songs.add(new Song("20", "O", ""));
-        Shuffle shuffle = new Shuffle(songs);
+        List<Shuffleable> shuffleables = new ArrayList<>();
+        shuffleables.add(new Shuffleable("1", "A", ""));
+        shuffleables.add(new Shuffleable("2", "A", ""));
+        shuffleables.add(new Shuffleable("3", "B", ""));
+        shuffleables.add(new Shuffleable("4", "B", ""));
+        shuffleables.add(new Shuffleable("5", "C", ""));
+        shuffleables.add(new Shuffleable("6", "C", ""));
+        shuffleables.add(new Shuffleable("7", "D", ""));
+        shuffleables.add(new Shuffleable("8", "E", ""));
+        shuffleables.add(new Shuffleable("9", "F", ""));
+        shuffleables.add(new Shuffleable("10", "G", ""));
+        shuffleables.add(new Shuffleable("11", "G", ""));
+        shuffleables.add(new Shuffleable("12", "H", ""));
+        shuffleables.add(new Shuffleable("13", "I", ""));
+        shuffleables.add(new Shuffleable("14", "J", ""));
+        shuffleables.add(new Shuffleable("15", "K", ""));
+        shuffleables.add(new Shuffleable("16", "K", ""));
+        shuffleables.add(new Shuffleable("17", "L", ""));
+        shuffleables.add(new Shuffleable("18", "M", ""));
+        shuffleables.add(new Shuffleable("19", "N", ""));
+        shuffleables.add(new Shuffleable("20", "O", ""));
+        Shuffle shuffle = new Shuffle(shuffleables);
         Long timeBefore = System.currentTimeMillis();
         shuffle.shuffle();
-        songs = shuffle.getSongs();
+        shuffleables = shuffle.getShuffleables();
         Long timeAfter = System.currentTimeMillis();
-        System.out.println(songs);
+        System.out.println(shuffleables);
         long timeTaken = timeAfter - timeBefore;
-        double timePerSong = timeTaken / songs.size();
+        double timePerSong = timeTaken / shuffleables.size();
         System.out.println("Shuffled in " + timeTaken + " Milliseconds at " + timePerSong + " Milliseconds per song");
     }
 
@@ -69,43 +69,43 @@ public class TestShuffle {
     }
 
     private void runFileShuffle() throws ReadOnlyFileException, IOException, TagException, InvalidAudioFrameException, CannotReadException {
-        if (songs.isEmpty()) {
+        if (shuffleables.isEmpty()) {
             File musicDir = new File(System.getProperty("user.home") + "/Music");
             for (File f : Objects.requireNonNull(musicDir.listFiles())) {
                 if (!f.getName().endsWith(".mp3")) {
                     continue;
                 }
-                songs.add(new SongFile(f));
+                shuffleables.add(new SongFile(f));
             }
         }
-        Shuffle shuffle = new Shuffle(songs);
+        Shuffle shuffle = new Shuffle(shuffleables);
         Long timeBefore = System.nanoTime();
         shuffle.shuffle();
-        songs = shuffle.getSongs();
+        shuffleables = shuffle.getShuffleables();
         Long timeAfter = System.nanoTime();
         System.out.println("\n\n");
         long timeTaken = timeAfter - timeBefore;
         System.out.println("Shuffled in " + timeTaken + " Nanoseconds");
-        int repeats = checkForRepeats(songs);
+        int repeats = checkForRepeats(shuffleables);
         this.shuffle += repeats;
         System.out.println(repeats + " songs were found with the same artist before, after shuffle");
         timeBefore = System.nanoTime();
-        songs = shuffle.randomiseOrder(songs);
+        shuffleables = shuffle.randomiseOrder(shuffleables);
         timeAfter = System.nanoTime();
         long randomTimeTaken = timeAfter - timeBefore;
         System.out.println("Shuffled in " + randomTimeTaken + " Nanoseconds");
         System.out.println(timeTaken / randomTimeTaken + "x difference between shuffle and random");
-        repeats = checkForRepeats(songs);
+        repeats = checkForRepeats(shuffleables);
         random += repeats;
         System.out.println(repeats + " songs were found with the same artist before, after a random shuffle");
         trials++;
     }
 
-    private int checkForRepeats(List<Song> songs) {
+    private int checkForRepeats(List<Shuffleable> shuffleables) {
         String title = "";
         String artist = "";
         int repeats = 0;
-        for (Song s : songs) {
+        for (Shuffleable s : shuffleables) {
             if (s.getArtist(false).equalsIgnoreCase(artist)) {
                 repeats++;
                 System.out.println(artist + ": " + title + " & " + s.getTitle());

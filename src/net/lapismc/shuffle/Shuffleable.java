@@ -1,14 +1,18 @@
 package net.lapismc.shuffle;
 
-public class Song implements Comparable<Song> {
+public class Shuffleable implements Comparable<Shuffleable> {
 
     private String title, artist, album;
     private double index;
 
-    Song() {
-    }
-
-    public Song(String title, String artist, String album) {
+    /**
+     * The default constructor
+     *
+     * @param title  The title of this track
+     * @param artist The artist of this track
+     * @param album  The artist of this track
+     */
+    public Shuffleable(String title, String artist, String album) {
         if (title == null || artist == null) {
             throw new IllegalArgumentException("Title and Artist must not be null!");
         }
@@ -18,6 +22,12 @@ public class Song implements Comparable<Song> {
         this.title = title;
         this.artist = artist;
         this.album = album;
+    }
+
+    /**
+     * Should only be used if you are going to manually set the title, artist and album
+     */
+    Shuffleable() {
     }
 
     public String getTitle() {
@@ -64,8 +74,8 @@ public class Song implements Comparable<Song> {
     }
 
     @Override
-    public int compareTo(Song song) {
-        return (int) ((this.getIndex() - song.getIndex()) * 1000);
+    public int compareTo(Shuffleable shuffleable) {
+        return (int) ((this.getIndex() - shuffleable.getIndex()) * 1000);
     }
 
 }

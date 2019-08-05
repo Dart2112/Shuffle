@@ -12,7 +12,7 @@ import org.jaudiotagger.tag.TagException;
 import java.io.File;
 import java.io.IOException;
 
-public class SongFile extends Song {
+public class SongFile extends Shuffleable {
 
     private File file;
 
