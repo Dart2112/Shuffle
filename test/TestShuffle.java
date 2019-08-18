@@ -41,13 +41,14 @@ public class TestShuffle {
         shuffleables.add(new Shuffleable("18", "M", ""));
         shuffleables.add(new Shuffleable("19", "N", ""));
         shuffleables.add(new Shuffleable("20", "O", ""));
-        Shuffle shuffle = new Shuffle(shuffleables);
+        Shuffle shuffle = new Shuffle();
         Long timeBefore = System.currentTimeMillis();
-        shuffle.shuffle();
+        shuffle.shuffle(shuffleables, 20);
         shuffleables = shuffle.getShuffleables();
         Long timeAfter = System.currentTimeMillis();
         System.out.println(shuffleables);
         long timeTaken = timeAfter - timeBefore;
+        //noinspection IntegerDivisionInFloatingPointContext
         double timePerSong = timeTaken / shuffleables.size();
         System.out.println("Shuffled in " + timeTaken + " Milliseconds at " + timePerSong + " Milliseconds per song");
     }
@@ -78,9 +79,9 @@ public class TestShuffle {
                 shuffleables.add(new SongFile(f));
             }
         }
-        Shuffle shuffle = new Shuffle(shuffleables);
+        Shuffle shuffle = new Shuffle();
         Long timeBefore = System.nanoTime();
-        shuffle.shuffle();
+        shuffle.shuffle(shuffleables, 20);
         shuffleables = shuffle.getShuffleables();
         Long timeAfter = System.nanoTime();
         System.out.println("\n\n");

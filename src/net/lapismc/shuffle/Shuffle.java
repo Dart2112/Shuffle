@@ -9,12 +9,19 @@ public class Shuffle {
     private Map<String, List<Shuffleable>> artists = new HashMap<>();
     private Random r;
 
-    public Shuffle(List<Shuffleable> shuffleables) {
-        this.shuffleables = shuffleables;
+    /**
+     * default constructor, setups up the random
+     */
+    public Shuffle() {
         r = new Random();
     }
 
-    public void shuffle() {
+    /**
+     * @param toShuffle The list of Shuffleables that you wish to process
+     * @param buffer    The buffer applied to the distribution, 0-49, higher is better shuffled but less random
+     */
+    public void shuffle(List<Shuffleable> toShuffle, float buffer) {
+        this.shuffleables = toShuffle;
         //Classify Tracks
         classifyByArtist();
         //Distribute albums within artists
@@ -36,7 +43,7 @@ public class Shuffle {
             //Distribute each album over the length of all artist tracks
             for (String album : albums.keySet()) {
                 List<Shuffleable> albumTracks = albums.get(album);
-                albums.put(album, distribute(randomiseOrder(albumTracks), shuffleables.size()));
+                albums.put(album, distribute(randomiseOrder(albumTracks), shuffleables.size(), buffer));
             }
             List<Shuffleable> distributedArtistTracks = new ArrayList<>();
             for (List<Shuffleable> albumTracks : albums.values()) {
@@ -49,7 +56,7 @@ public class Shuffle {
         //Distribute each artist
         for (String artist : artists.keySet()) {
             List<Shuffleable> shuffleables = artists.get(artist);
-            artists.put(artist, distribute(shuffleables, this.shuffleables.size()));
+            artists.put(artist, distribute(shuffleables, this.shuffleables.size(), buffer));
         }
         //Collapse the artists distributed tracks back to a single playlist
         List<Shuffleable> distributedPlaylist = new ArrayList<>();
@@ -93,14 +100,14 @@ public class Shuffle {
      *
      * @param toDistribute The list of tracks to distribute
      * @param length       The length of the overall playlist to distribute along
+     * @param buffer       The buffer applied to distribution
      * @return Returns a sorted list with indexes distributed
      */
-    private List<Shuffleable> distribute(List<Shuffleable> toDistribute, int length) {
+    private List<Shuffleable> distribute(List<Shuffleable> toDistribute, int length, float buffer) {
         int range = length / toDistribute.size();
         //The amount of buffer on each side that should be applied to the randomness, max 49.00
-        float x = 20.0f;
         //This value is x% of range
-        int p = (int) (range * (x / 100.0f));
+        int p = (int) (range * (buffer / 100.0f));
         for (int i = 0; i < toDistribute.size(); i++) {
             //This gets a random in the lower x*2% of the range to be shifted later to the middle
             int randomMax = range - (p * 2);
@@ -116,6 +123,7 @@ public class Shuffle {
 
     /**
      * Randomizes the order of the elements in the list
+     * This is purely random
      * Used for randomizing the order of tracks in albums
      *
      * @param tracks The tracks to order
