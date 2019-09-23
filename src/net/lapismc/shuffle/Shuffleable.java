@@ -1,5 +1,7 @@
 package net.lapismc.shuffle;
 
+import java.util.UUID;
+
 public class Shuffleable implements Comparable<Shuffleable> {
 
     private String title, artist, album;
@@ -28,6 +30,10 @@ public class Shuffleable implements Comparable<Shuffleable> {
      * Should only be used if you are going to manually set the title, artist and album
      */
     Shuffleable() {
+    }
+
+    public UUID getUuid() {
+        return UUID.nameUUIDFromBytes((getTitle() + getArtist(true)).getBytes());
     }
 
     public String getTitle() {

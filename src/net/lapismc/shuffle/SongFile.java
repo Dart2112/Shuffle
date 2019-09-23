@@ -11,6 +11,7 @@ import org.jaudiotagger.tag.TagException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 public class SongFile extends Shuffleable {
 
@@ -27,6 +28,11 @@ public class SongFile extends Shuffleable {
         setTitle(title);
         setArtist(artist);
         setAlbum(album);
+    }
+
+    @Override
+    public UUID getUuid() {
+        return UUID.nameUUIDFromBytes((getTitle() + getFile().length()).getBytes());
     }
 
     public File getFile() {
